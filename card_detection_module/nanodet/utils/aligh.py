@@ -1,12 +1,18 @@
 import numpy as np
 from torch._C import device
 import cv2
-import argparse
-import time
+import math
 
 class AlighModel(object):
     def __init__(self):
         super(AlighModel).__init__()
+
+    def distance(self, p1, p2):
+        x1, y1 = p1
+        x2, y2 = p2
+        dist = math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
+        
+        return dist
 
     def aligh(self, image, list_points):
         source_points = self.get_cornor_point(list_points)
@@ -15,8 +21,8 @@ class AlighModel(object):
         # print('source_points: ', source_points)
         point = np.float32([source_points[0],source_points[1],source_points[2],source_points[3]])
         # image = cv2.imread(image_path)
-        max_width = max(abs(source_points[1][0]-source_points[0][0]), abs(source_points[2][0]-source_points[3][0]))
-        max_height = max(abs(source_points[3][1]-source_points[0][1]), abs(source_points[2][1]-source_points[1][1]))
+        max_width = max(self.distance(source_points[1], source_points[0]), self.distance(source_points[2], source_points[3]))
+        max_height = max(self.distance(source_points[3], source_points[0]), self.distance(source_points[2], source_points[1]))
         dest_points = np.float32([[0, 0], [max_width, 0], [max_width, max_height], [0, max_height]])
         
         M = cv2.getPerspectiveTransform(point, dest_points)
